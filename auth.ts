@@ -5,6 +5,7 @@ import authConfig from "./auth.config";
 import { db } from "@/lib/db";
 import { getUserById } from "./data/user";
 import { USERROLE } from "@prisma/client";
+import { getTwoFactorAuthenticationByUserId } from "./data/two-factor-confirmation";
 declare module "next-auth" {
   interface User {
     /** The user's postal address. */
@@ -38,13 +39,20 @@ export const {
   },
   callbacks: {
     signIn: async ({ user, account }) => {
-      // console.log("user:", user);
-      // console.log("account:", account);
       if (account?.provider !== "credentials") return true;
       const existingUser = await getUserById(user.id);
       if (!existingUser) return false;
       if (!existingUser.emailVerified) return false;
-      //TODO : Send email verification token
+        
+      if(existingUser.isTwoFactorEnabled){
+        const twoFactorConfirmation = await getTwoFactorAuthenticationByUserId(existingUser.id)
+        console.log(twoFactorConfirmation)
+        if(!twoFactorConfirmation) return false;
+        await db.twoFactorConfirm.delete({
+          where:{id:twoFactorConfirmation.id}
+        })
+        
+      }
       return true;
     },
     session: async ({ session, token }) => {

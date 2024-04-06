@@ -41,27 +41,30 @@ export const LoginForm = () => {
   const [error, setError] = useState<string | null | undefined>(null);
 
   const [success, setSuccess] = useState<string | null | undefined>(null);
+  const [showTwoFactor,setShowTwoFactor] = useState(false)
   const [isPending, startTransition] = useTransition();
   const form = useForm<z.infer<typeof LoginSchema>>({
     resolver: zodResolver(LoginSchema),
     defaultValues: {
       email: "",
       password: "",
+      code:''
     },
   });
   function onSubmit(values: z.infer<typeof LoginSchema>) {
     setSuccess(null);
     setError(null);
     startTransition(() => {
-      login(values).then((res) => {
-        if ("error" in res) {
-          setError(res.error);
-          setSuccess(null);
-        } else {
-          setSuccess(res.success);
-          setError(null);
+      login(values).then(({success,error,twoFactor}) => {
+        if(success || error){
+           form.reset()
+           setError(error)
+           setSuccess(success)
         }
-      });
+        if(twoFactor){
+          setShowTwoFactor(true)
+        }
+      }).catch(err=>setError('Something gone wrong.'))
     });
   }
   return (
@@ -73,6 +76,24 @@ export const LoginForm = () => {
     >
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+          {showTwoFactor? <>
+          <FormField
+            control={form.control}
+            name="code"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Two Factor Code</FormLabel>
+                <FormControl>
+                  <Input
+                    disabled={isPending}
+                    placeholder="code"
+                    {...field}
+                    type="text"
+                  />
+                </FormControl>
+               </FormItem>
+            )}
+          /></>:<>
           <FormField
             control={form.control}
             name="email"
@@ -118,6 +139,7 @@ export const LoginForm = () => {
               </FormItem>
             )}
           />
+          </>}
           {<FormSuccess message={success} />}
           {<FormError message={error || paramError} />}
           <Button type="submit" className="w-full">
