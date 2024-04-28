@@ -8,14 +8,13 @@ import { USERROLE } from "@prisma/client";
 import { getTwoFactorAuthenticationByUserId } from "./data/two-factor-confirmation";
 declare module "next-auth" {
   interface User {
-    /** The user's postal address. */
-
     role: "ADMIN" | "USER";
   }
 }
 declare module "@auth/core/jwt" {
   interface JWT {
     role?: USERROLE;
+    isTwoFactorEnabled: boolean;
   }
 }
 export const {
@@ -43,31 +42,42 @@ export const {
       const existingUser = await getUserById(user.id);
       if (!existingUser) return false;
       if (!existingUser.emailVerified) return false;
-        
-      if(existingUser.isTwoFactorEnabled){
-        const twoFactorConfirmation = await getTwoFactorAuthenticationByUserId(existingUser.id)
-        console.log(twoFactorConfirmation)
-        if(!twoFactorConfirmation) return false;
+
+      if (existingUser.isTwoFactorEnabled) {
+        const twoFactorConfirmation = await getTwoFactorAuthenticationByUserId(
+          existingUser.id
+        );
+        if (!twoFactorConfirmation) return false;
         await db.twoFactorConfirm.delete({
-          where:{id:twoFactorConfirmation.id}
-        })
-        
+          where: { id: twoFactorConfirmation.id },
+        });
       }
       return true;
     },
     session: async ({ session, token }) => {
-      // console.log("session:", session);
       if (token.sub && !session?.user?.id) session.user.id = token.sub;
       if (token.role && !session?.user?.role) session.user.role = token.role;
-      // console.log("sessionToken", token);
+
+      if (
+        token?.isTwoFactorEnabled === false ||
+        (token?.isTwoFactorEnabled == true &&
+          !session?.user?.isTwoFactorEnabled)
+      )
+        session.user.isTwoFactorEnabled = token.isTwoFactorEnabled;
+
       return session;
     },
-    jwt: async ({ token }) => {
+    jwt: async ({ token,trigger,session }) => {
+      
+       if(trigger === 'update') {
+        token = {...session.data}
+      }
       // set the user role to token.role by user role from database
       if (!token.sub) return token;
       const existingUser = await getUserById(token.sub);
       if (!existingUser) return token;
       token.role = existingUser.role;
+      token.isTwoFactorEnabled = existingUser.isTwoFactorEnabled;
       return token;
     },
   },

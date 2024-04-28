@@ -5,7 +5,6 @@ import { getUserByEmail } from "@/data/user";
 export const Verify = async (token: string) => {
   try {
     const verificationToken = await getVerificationTokenByToken(token);
-    console.log(verificationToken);
     // return { error: "Invalid Token" };
     if (!verificationToken) return { error: "Invalid Token" };
     const user = await getUserByEmail(verificationToken.email);

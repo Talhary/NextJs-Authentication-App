@@ -4,5 +4,4 @@ export const Logout = async ()=>{
     const session = await auth();
     console.log({session})
     await signOut();
-
-} 
+}; 
