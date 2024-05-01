@@ -21,6 +21,10 @@ export default async function RootLayout({
   return (
     <SessionProvider session={session}>
       <html lang="en">
+          <head>
+        <meta name="google-site-verification" content="wHIxtQ2Ehw-Z4mysz4nMFthsRdGwaCmbnp72t9r7mkI" />
+       </head>
+    
         <body className={inter.className}>{children}</body>
       </html>
     </SessionProvider>
