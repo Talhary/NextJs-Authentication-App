@@ -23,6 +23,7 @@ export default async function RootLayout({
       <html lang="en">
           <head>
         <meta name="google-site-verification" content="wHIxtQ2Ehw-Z4mysz4nMFthsRdGwaCmbnp72t9r7mkI" />
+       <meta name="google-site-verification" content="g2cMBpBNsXwELDdAdtzZzOeLnLcgcHAEOWzqi_5aq3Q" />
        </head>
     
         <body className={inter.className}>{children}</body>
