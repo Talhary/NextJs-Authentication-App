@@ -6,7 +6,7 @@ const dispatch = useDispatch();
 let user = null;
  const res = await dispatch(GetUsers());
   user = res.payload[0];
-  console.log(user);
+ 
   return (
     <div className="flex space-y-5 flex-col justify-center items-center">
       <div>{user.gender}</div>

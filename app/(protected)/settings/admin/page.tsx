@@ -29,7 +29,7 @@ const AdminPage = () => {
     startTransition(() => {
       getData()
         .then((res: { data: string; status: string }) => {
-          console.log(res);
+        
           if (res.status == "200") setInfo(res);
           else seterrShow(true);
         })

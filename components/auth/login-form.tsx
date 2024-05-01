@@ -26,6 +26,7 @@ import Link from "next/link";
 
 export const LoginForm = () => {
   const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get('callbackUrl') || ''
   const paramError =
     searchParams
       .get("error")
@@ -56,7 +57,7 @@ export const LoginForm = () => {
     setError(null);
     btnRef.current.style.opacity = "0.7";
     startTransition(() => {
-      login(values)
+      login(values,callbackUrl)
         .then(({ success, error, twoFactor }) => {
           if (success || error) {
             form.reset();

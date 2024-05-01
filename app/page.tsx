@@ -21,12 +21,12 @@ export default function Home() {
       <p className={cn("text-2xl", fontPoppin100.className)}>
         This is simple authentication
       </p>
-      <LoginButton>
-        <Link href="/auth/login">
+      <LoginButton mode="redirect" asChild>
+        
           <Button variant={"secondary"} size="lg">
             Sign in
           </Button>
-        </Link>
+       
       </LoginButton>
     </div>
   );

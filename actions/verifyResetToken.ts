@@ -9,10 +9,10 @@ export const VerifyResetToken = async (
   value: z.infer<typeof resetPasswordSchema>
 ) => {
   try {
-    console.log(value);
+
     const { password, token } = value;
     const user = await getResetTokenByToken(token);
-    console.log(user);
+   
     if (!user) return { error: "Invalid token" };
     if (user.expires < new Date()) return { error: "Token expired" };
     const encryptedPassword = await bcrypt.hash(password, 10);

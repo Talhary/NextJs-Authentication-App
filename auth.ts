@@ -6,6 +6,7 @@ import { db } from "@/lib/db";
 import { getUserById } from "./data/user";
 import { USERROLE } from "@prisma/client";
 import { getTwoFactorAuthenticationByUserId } from "./data/two-factor-confirmation";
+import { getAccountByUserId } from "./data/accouts";
 declare module "next-auth" {
   interface User {
     role: "ADMIN" | "USER";
@@ -15,6 +16,7 @@ declare module "@auth/core/jwt" {
   interface JWT {
     role?: USERROLE;
     isTwoFactorEnabled: boolean;
+    isOAuth:boolean
   }
 }
 export const {
@@ -63,6 +65,9 @@ export const {
         (token?.isTwoFactorEnabled == true &&
           !session?.user?.isTwoFactorEnabled)
       )
+      if( !session.user.isOAuth){
+        session.user.isOAuth = token?.isOAuth
+      }
         session.user.isTwoFactorEnabled = token.isTwoFactorEnabled;
 
       return session;
@@ -70,13 +75,18 @@ export const {
     jwt: async ({ token,trigger,session }) => {
       
        if(trigger === 'update') {
-        token = {...session.data}
+        token = {...token,...session.data}
       }
+ 
       // set the user role to token.role by user role from database
       if (!token.sub) return token;
       const existingUser = await getUserById(token.sub);
       if (!existingUser) return token;
-      token.role = existingUser.role;
+       const existingAccount = await getAccountByUserId(existingUser.id);
+       
+       token.isOAuth = !! existingAccount
+      
+       token.role = existingUser.role;
       token.isTwoFactorEnabled = existingUser.isTwoFactorEnabled;
       return token;
     },

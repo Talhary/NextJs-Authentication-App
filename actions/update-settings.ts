@@ -8,11 +8,12 @@ import { db } from "@/lib/db";
 const SettingsUpdate= async(values: z.infer< typeof settingsSchema>) =>{
   const user = await currentUser();
   if(!user){
-    return { error:'No user found'}
+    return { error:'No user found in client side'}
   }
   const userFromDb = await getUserById(user.id)
+
   if(!userFromDb){
-    return { error:'No user found'}
+    return { error:'No user found in server side'}
   }
   await db.user.update({
     where:{

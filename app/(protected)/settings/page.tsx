@@ -3,7 +3,7 @@ import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Logout } from "@/actions/logout";
 import { useCurrentUser } from "@/hooks/use-current-user";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
@@ -33,7 +33,7 @@ const Page = () => {
    const [isPending,startTransition] = useTransition()
    const {update:updateSession} = useSession()
    function onSubmit(values: z.infer<typeof settingsSchema>) {
-    console.log(values)
+   
     
     startTransition(()=>{
     updateSession({data:values})
@@ -42,8 +42,8 @@ const Page = () => {
      setShowSuccess(res?.success)
    })
     })
-    console.log({values})
-    console.log(settingsSchema)
+   
+   
   }
   
    const form = useForm<z.infer<typeof settingsSchema>>({
@@ -51,11 +51,17 @@ const Page = () => {
     defaultValues: {
       name: '',
       isTwoFactorEnabled:user?.isTwoFactorEnabled,
+      
     },
   })
    return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+    <Card className="p-2">
+      <CardTitle className=" text-center text-xl mx-2">
+        Settings
+      </CardTitle>
+      <CardContent>
+      <Form {...form}>
+       <form  onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <FormField
           control={form.control}
           name="name"
@@ -66,7 +72,7 @@ const Page = () => {
               <FormControl>
                 <Input 
                 disabled={isPending}
-                placeholder="shadcn" {...field} />
+                placeholder={user?.name as string} {...field} />
               </FormControl>
              
               <FormMessage />
@@ -94,11 +100,13 @@ const Page = () => {
             </FormItem>
           )}
         />
-        <Button disabled={isPending} type="submit">Save</Button>
+        <Button className="w-full" disabled={isPending} type="submit">Save</Button>
       </form>
       {showError && <FormError message={showError}/>}
       {showSuccess && <FormSuccess message={showSuccess}/>}
-    </Form>
+     </Form>
+    </CardContent>
+    </Card>
   )
 };
 export default Page;

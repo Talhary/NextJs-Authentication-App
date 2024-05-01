@@ -17,12 +17,13 @@ export const UserInfo = ({ user, label }: UserInfoProps) => {
     title: string;
     name: string | number | boolean | undefined | null;
   }
+
   const data: UserData[] = [
     { title: "Profile Name", name: user.name },
     { title: "User Email", name: user.email },
     { title: "ID", name: user.id },
-
     { title: "ROLE", name: user.role },
+    { title: "Is OAuth", name: user.isOAuth },
     { title: "Two Factor", name: user.isTwoFactorEnabled },
   ];
   // user.isTwoFactorEnabled = false;
