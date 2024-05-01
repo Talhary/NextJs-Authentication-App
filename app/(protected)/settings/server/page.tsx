@@ -3,7 +3,7 @@ import { UserInfo } from "../../_components/user-info";
 const Server = async () => {
   const user = await currentUser();
   if (!user) {
-    return <>Sorry User doesn't exist</>;
+    return <>Sorry User doesnt exist</>;
   }
   return (
     <>
